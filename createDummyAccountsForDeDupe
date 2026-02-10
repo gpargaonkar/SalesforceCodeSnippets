@@ -1,3 +1,5 @@
+//Below snippet can be executed from Anonymous window
+
 List<Account> testAccounts = new List<Account>();
 
 // Create DML Options to bypass duplicate rules
