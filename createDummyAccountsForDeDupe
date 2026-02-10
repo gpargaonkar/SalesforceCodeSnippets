@@ -1,0 +1,30 @@
+List<Account> testAccounts = new List<Account>();
+
+// Create DML Options to bypass duplicate rules
+Database.DMLOptions dml = new Database.DMLOptions(); 
+dml.DuplicateRuleHeader.allowSave = true; // This is the magic line
+dml.DuplicateRuleHeader.runAsCurrentUser = true;
+
+for(Integer i=1; i<=250; i++) {
+    // 1. Golden Record
+    testAccounts.add(new Account(Name='Global Tech ' + i, Website='www.globaltech'+i+'.com', BillingCity='San Francisco'));
+    
+    // 2. Duplicate A (Typo)
+    testAccounts.add(new Account(Name='GlobalTech ' + i, Website='www.globaltech'+i+'.com', BillingCity='SF'));
+    
+    // 3. Duplicate B (Missing Website)
+    testAccounts.add(new Account(Name='Global Tech Inc ' + i, BillingCity='San Francisco'));
+    
+    // 4. Duplicate C (Different Format)
+    testAccounts.add(new Account(Name='GLOBAL TECH ' + i, Website='http://globaltech'+i+'.com'));
+}
+
+// Use Database.insert instead of the standalone 'insert' keyword
+Database.SaveResult[] results = Database.insert(testAccounts, dml);
+
+// Optional: Check for success
+Integer successCount = 0;
+for (Database.SaveResult sr : results) {
+    if (sr.isSuccess()) successCount++;
+}
+System.debug('Successfully inserted ' + successCount + ' records (including duplicates).');
